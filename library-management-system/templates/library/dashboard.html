@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Library Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+    <div class="text-muted">
+        Welcome, {{ user.get_full_name|default:user.username }}!
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-2 mb-3">
+        <div class="card stat-card info">
+            <div class="stat-number">{{ total_books }}</div>
+            <div>Total Books</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-2 mb-3">
+        <div class="card stat-card success">
+            <div class="stat-number">{{ total_members }}</div>
+            <div>Active Members</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-2 mb-3">
+        <div class="card stat-card warning">
+            <div class="stat-number">{{ issued_books }}</div>
+            <div>Issued Books</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-2 mb-3">
+        <div class="card stat-card success">
+            <div class="stat-number">{{ returned_books }}</div>
+            <div>Returned Books</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-2 mb-3">
+        <div class="card stat-card danger">
+            <div class="stat-number">{{ overdue_books }}</div>
+            <div>Overdue Books</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Issues -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock"></i> Recent Issues</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_issues %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Member</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for issue in recent_issues %}
+                                <tr>
+                                    <td>{{ issue.book.title|truncatechars:30 }}</td>
+                                    <td>{{ issue.member.user.get_full_name }}</td>
+                                    <td>{{ issue.issue_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent issues</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Returns -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-undo"></i> Recent Returns</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_returns %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Book</th>
+                                    <th>Member</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for return in recent_returns %}
+                                <tr>
+                                    <td>{{ return.book.title|truncatechars:30 }}</td>
+                                    <td>{{ return.member.user.get_full_name }}</td>
+                                    <td>{{ return.return_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recent returns</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Popular Books -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-star"></i> Popular Books</h5>
+            </div>
+            <div class="card-body">
+                {% if popular_books %}
+                    <div class="row">
+                        {% for book in popular_books %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ book.title }}</h6>
+                                    <p class="card-text text-muted">by {{ book.author }}</p>
+                                    <span class="badge bg-primary">{{ book.issue_count }} issue{{ book.issue_count|pluralize }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No popular books data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

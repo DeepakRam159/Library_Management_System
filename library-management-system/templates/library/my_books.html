@@ -1,0 +1,56 @@
+<!-- Reservations Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-bookmark"></i> My Reservations</h5>
+    </div>
+    <div class="card-body">
+        {% if reservations %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Reservation Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr>
+                            <td>
+                                <strong>{{ reservation.book.title }}</strong>
+                                <br><small class="text-muted">by {{ reservation.book.author }}</small>
+                            </td>
+                            <td>{{ reservation.reservation_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if reservation.is_active %}
+                                    {% if reservation.book.is_available %}
+                                        <span class="badge bg-success">Available Now</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Waiting</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if reservation.is_active %}
+                                    <form method="post" action="{% url 'cancel_reservation' reservation.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">You don't have any active reservations.</p>
+        {% endif %}
+    </div>
+</div>

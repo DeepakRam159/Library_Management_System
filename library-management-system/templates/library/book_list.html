@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Books - Library Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-book"></i> Books</h1>
+    {% if user.is_superuser or user.groups.all %}
+        <a href="{% url 'book_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Book
+        </a>
+    {% endif %}
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" name="search" placeholder="Search books..." value="{{ search_query }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id|stringformat:"s" == category_filter %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Books Table -->
+<div class="card">
+    <div class="card-body">
+        {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>ISBN</th>
+                            <th>Available/Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ book.title }}</strong>
+                                {% if book.description %}
+                                    <br><small class="text-muted">{{ book.description|truncatechars:50 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ book.author }}</td>
+                            <td><span class="badge bg-secondary">{{ book.category.name }}</span></td>
+                            <td>{{ book.isbn }}</td>
+                            <td>
+                                <span class="badge {% if book.available_copies > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ book.available_copies }}/{{ book.total_copies }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if book.is_available %}
+                                    <span class="badge bg-success">Available</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Available</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if user.is_authenticated %}
+                                        {% if book.is_available %}
+                                            <!-- Self-service book issuing for all logged-in members -->
+                                            <a href="{% url 'issue_book_self' book.pk %}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to issue this book?')">
+                                                <i class="fas fa-plus-circle"></i> Issue
+                                            </a>
+                                        {% else %}
+                                            <!-- Reserve book if not available -->
+                                            <form method="post" action="{% url 'reserve_book' book.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-bookmark"></i> Reserve
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
+                                    
+                                    {% if user.is_superuser or user.groups.all %}
+                                        <a href="{% url 'book_edit' book.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'book_delete' book.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this book?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h5>No books found</h5>
+                <p class="text-muted">Try adjusting your search criteria</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

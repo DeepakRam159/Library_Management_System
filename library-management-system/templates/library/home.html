@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Library Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 rounded-lg overflow-hidden shadow-lg">
+                <div class="card-body p-0">
+                    <div class="bg-primary text-white p-5" style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%);">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <h1 class="display-4 fw-bold mb-4">Welcome to Our Library</h1>
+                                <p class="lead mb-4">Discover a world of knowledge with thousands of books and resources available for our members.</p>
+                                <div class="d-flex gap-3">
+                                    {% if not user.is_authenticated %}
+                                    <a href="{% url 'login' %}" class="btn btn-light btn-lg px-4">Login</a>
+                                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">Register</a>
+                                    {% else %}
+                                    <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg px-4">Go to Dashboard</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-lg-4 d-none d-lg-block text-center">
+                                <i class="fas fa-book-reader fa-10x text-white opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">Library Services</h2>
+            <p class="text-muted">Explore what our library has to offer</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Extensive Collection</h5>
+                    <p class="card-text text-muted">Access thousands of books, journals, and digital resources spanning various subjects.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="fas fa-laptop fa-2x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Online Catalog</h5>
+                    <p class="card-text text-muted">Browse our entire collection online and check book availability in real-time.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="rounded-circle bg-danger bg-opacity-10 p-3 d-inline-block mb-3">
+                        <i class="fas fa-clock fa-2x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Self-Service</h5>
+                    <p class="card-text text-muted">Issue and manage your books online with our self-service system.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Follow these simple steps to start using our library</p>
+        </div>
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="position-relative mb-3">
+                                    <div class="border border-2 border-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px;">
+                                        <span class="fw-bold">1</span>
+                                    </div>
+                                </div>
+                                <h5>Register</h5>
+                                <p class="text-muted">Create an account to become a library member</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="position-relative mb-3">
+                                    <div class="border border-2 border-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px;">
+                                        <span class="fw-bold">2</span>
+                                    </div>
+                                </div>
+                                <h5>Browse Books</h5>
+                                <p class="text-muted">Search our collection and find your next read</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="position-relative mb-3">
+                                    <div class="border border-2 border-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px;">
+                                        <span class="fw-bold">3</span>
+                                    </div>
+                                </div>
+                                <h5>Issue Books</h5>
+                                <p class="text-muted">Issue books directly from the online catalog</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="position-relative mb-3">
+                                    <div class="border border-2 border-primary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 50px; height: 50px;">
+                                        <span class="fw-bold">4</span>
+                                    </div>
+                                </div>
+                                <h5>Return</h5>
+                                <p class="text-muted">Return books by the due date to avoid fines</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visitor Registration -->
+    <div class="row mb-5">
+        <div class="col-md-6 offset-md-3">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4">Register as a Visitor</h3>
+                    <p class="text-center text-muted mb-4">Fill out this form to register your visit to our library</p>
+                    <form method="post" action="{% url 'visitor_register' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="purpose" class="form-label">Purpose of Visit</label>
+                            <input type="text" class="form-control" id="purpose" name="purpose" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Register Visit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add styles for hover effect -->
+<style>
+    .hover-card {
+        transition: transform 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-10px);
+    }
+</style>
+{% endblock %}

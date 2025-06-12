@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Books - Library Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-search"></i> Search Books</h1>
+    </div>
+
+    <!-- Advanced Search Form -->
+    <div class="card mb-4 shadow">
+        <div class="card-body p-4">
+            <h5 class="mb-3">Advanced Search</h5>
+            <form method="get" action="{% url 'search' %}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ request.GET.title|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="author" class="form-label">Author</label>
+                        <input type="text" class="form-control" id="author" name="author" value="{{ request.GET.author|default:'' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="isbn" class="form-label">ISBN</label>
+                        <input type="text" class="form-control" id="isbn" name="isbn" value="{{ request.GET.isbn|default:'' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="category" class="form-label">Category</label>
+                        <select name="category" id="category" class="form-control">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" {% if request.GET.category|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="availability" class="form-label">Availability</label>
+                        <select name="availability" id="availability" class="form-control">
+                            <option value="">All Books</option>
+                            <option value="available" {% if request.GET.availability == 'available' %}selected{% endif %}>Available Only</option>
+                            <option value="unavailable" {% if request.GET.availability == 'unavailable' %}selected{% endif %}>Unavailable Only</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                        <a href="{% url 'search' %}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-redo"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if results %}
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>{{ results|length }} results found</span>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Sort by
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort=title">Title</a></li>
+                            <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort=author">Author</a></li>
+                            <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort=date">Publication Date</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>ISBN</th>
+                                <th>Availability</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in results %}
+                            <tr>
+                                <td>
+                                    <strong>{{ book.title }}</strong>
+                                    {% if book.book_image %}
+                                        <span class="badge bg-info ms-2"><i class="fas fa-image"></i></span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ book.author }}</td>
+                                <td><span class="badge bg-secondary">{{ book.category.name }}</span></td>
+                                <td>{{ book.isbn }}</td>
+                                <td>
+                                    {% if book.is_available %}
+                                        <span class="badge bg-success">Available</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Not Available</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#bookModal{{ book.id }}">
+                                        <i class="fas fa-info-circle"></i> Details
+                                    </button>
+                                    {% if user.is_authenticated and not book.is_available %}
+                                        <form method="post" action="{% url 'reserve_book' book.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-bookmark"></i> Reserve
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Book Detail Modals -->
+        {% for book in results %}
+        <div class="modal fade" id="bookModal{{ book.id }}" tabindex="-1" aria-labelledby="bookModalLabel{{ book.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="bookModalLabel{{ book.id }}">{{ book.title }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3 mb-md-0">
+                                {% if book.book_image %}
+                                    <img src="{{ book.book_image.url }}" alt="{{ book.title }}" class="img-fluid rounded">
+                                {% else %}
+                                    <div class="text-center p-4 bg-light rounded">
+                                        <i class="fas fa-book fa-5x text-muted"></i>
+                                        <p class="mt-2 text-muted">No image available</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <table class="table">
+                                    <tr>
+                                        <th>Title:</th>
+                                        <td>{{ book.title }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Author:</th>
+                                        <td>{{ book.author }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>ISBN:</th>
+                                        <td>{{ book.isbn }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Category:</th>
+                                        <td>{{ book.category.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Publisher:</th>
+                                        <td>{{ book.publisher }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Publication Date:</th>
+                                        <td>{{ book.publication_date }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Availability:</th>
+                                        <td>{{ book.available_copies }} of {{ book.total_copies }} available</td>
+                                    </tr>
+                                </table>
+                                
+                                {% if book.description %}
+                                <div class="mt-3">
+                                    <h6>Description:</h6>
+                                    <p>{{ book.description }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        {% if user.is_authenticated and not book.is_available %}
+                            <form method="post" action="{% url 'reserve_book' book.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-bookmark"></i> Reserve Book
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    {% elif request.method == 'GET' and request.GET %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No books match your search criteria. Please try different keywords or filters.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
